@@ -177,3 +177,62 @@ fetch('https://api.github.com/users/google/repos')
   });
 ```
 * 코드가 훨씬 간결해졌다
+
+---
+
+Lifecycle
+* 서비스 워커가 적용되는 과정에 대해 알아보자
+* Step1
+  - 브라우저가 서비스 워커 스크립트를 읽어냄(Parsing)  
+* Step2
+  - 서비스 워커 스크립트를 기반으로 태스크를 설치하는 단계
+  - ex. Cash
+* Step3
+  - Wating 이벤트를 설치하기
+* Step4
+  - Activated(활성화) 단계
+  - 서비스 워커가 페이지를 완전히 제어하는 단계
+
+서비스워커 등록 전에 체크해야할 것
+* 브라우저가 서비스 워커를 지원하는지를 체크
+  - 서비스워커는 HTML API중 navigator의 일부다
+  - 따라서 아래 코드의 두 방법 중 하나로 체크할 수 있다
+
+```js
+// Way 1
+if ('serviceWorker' in navigator) {
+  // Register the SW
+  navigator.serviceWorker.register('./sw.js');
+}
+
+// Way 2
+if (navigator.serviceWorker) {
+  // Register the SW
+  navigator.serviceWorker.register('./sw.js');
+}
+```
+
+서비스워커 코드 작성하기
+```js
+self.addEventListener('install', (e) => {
+  let installPromise = new Promise((resolve) => {
+    // Some async tasks
+    setTimeout(resolve, 3000);
+  });
+
+  // Tasks for the install event
+  e.waitUntil(installPromise);
+});
+
+self.addEventListener('activate', (e) => {
+  console.log('SW: Activate Event');
+});
+```
+* self는 서비스 워커 자신을 가르키는 변수다
+* install 이벤트는 서비스 워커가 실행하는 첫 번째 이벤트이며 한 번만 실행된다
+* waitUntil 함수는 프로미스를 전달받아 설치 완료 시점과, 성공 또는 실패를 브라우저에 알린다
+* skipWaiting 함수를 사용하면 대기를 방지하고 설치되자마자 서비스 워커를 활성화 시킨다
+* 서비스워커가 설치되어 클라이언트를 제어하고 push, sync같은 이벤트를 처리할 준비가 되면 activate이벤트가 발생한다
+
+---
+
