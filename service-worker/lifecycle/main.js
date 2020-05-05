@@ -16,3 +16,15 @@ if (navigator.serviceWorker) {
     })
     .catch(console.log);
 }
+
+// Get camera feed
+/*
+fetch('camera_feed.html')
+  .then((res) => {
+    return res.text();
+  })
+  .then((html) => {
+    console.log(html);
+    document.querySelector('#camera').innerHTML = html;
+  });
+*/

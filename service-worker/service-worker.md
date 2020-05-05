@@ -236,3 +236,64 @@ self.addEventListener('activate', (e) => {
 
 ---
 
+FetchEvent
+* 네트워크와 관련된 조작을 도와주는 객체
+
+```js
+self.addEventListener('fetch', (e) => {
+  if (e.request.url.endsWith('style.css')) {
+    console.log('Fetch Event for style.css: ' + e.request.url);
+  }
+});
+```
+* event객체의 request프로퍼티는 요청과 관련된 정보를 가지고 있다(ex. url)
+* url프로퍼티에 endsWith함수를 사용하면 최종 요청경로를 파악할 수 있다
+
+```js
+self.addEventListener('fetch', (e) => {
+  if (e.request.url.endsWith('style.css')) {
+    e.respondWith( fetch('/style2.css') );
+  }
+
+  if (e.request.url.endsWith('/greet')) {
+    let headers = new Headers({ 'Content-Type': 'text/html' });
+
+    let customRes = new Response('<h1>Hello World</h1>', {
+      headers,
+    });
+
+    e.respondWith(customRes);
+  }
+});
+```
+* respondWith는 프로미스를 사용해 추가적인 비동기 작업을 처리해준다
+
+이미지를 불러들여와 읽기
+```js
+// camera_feed.html
+<img src="http://placehold.it/500x200" />
+
+// main.js
+if (navigator.serviceWorker) {
+  // Register the SW
+  navigator.serviceWorker
+    .register('./sw.js')
+    .then((registration) => {
+      console.log('SW Registered');
+    })
+    .catch(console.log);
+}
+
+// Get camera feed
+fetch('camera_feed.html')
+  .then((res) => {
+    return res.text();
+  })
+  .then((html) => {
+    console.log(html);
+    document.querySelector('#camera').innerHTML = html;
+  });
+```
+* 위 코드를 추가하고 다시 로딩해보면 이미지를 불러와 추가하는 것을 확인할 수 있다
+
+---
