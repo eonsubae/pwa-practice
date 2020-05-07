@@ -1,20 +1,22 @@
 # Service worker
 
 서비스 워커
-* 웹 애플리케이션과 네트워크에 있어 근본이 되는 프록시 객체
-* 웹 애플리케이션과 독립적으로 실행되며 푸쉬 알림을 받는 것이 가능하다
-* 웹 애플리케이션과 독립적이므로 앱이 종료되어도 백그라운드에서 싱크된다
-* PWA에서 서비스 워커의 주된 역할은 네트워크가 가능하든 그렇지 않든 요청을 가로채서 응답을 적절하게 보내주는 것이다
-* 요청은 캐싱이 가능하며 HTTPS로 보안이 적용된 통신이 가능하다
-* 사용하는 API
+
+- 웹 애플리케이션과 네트워크에 있어 근본이 되는 프록시 객체
+- 웹 애플리케이션과 독립적으로 실행되며 푸쉬 알림을 받는 것이 가능하다
+- 웹 애플리케이션과 독립적이므로 앱이 종료되어도 백그라운드에서 싱크된다
+- PWA에서 서비스 워커의 주된 역할은 네트워크가 가능하든 그렇지 않든 요청을 가로채서 응답을 적절하게 보내주는 것이다
+- 요청은 캐싱이 가능하며 HTTPS로 보안이 적용된 통신이 가능하다
+- 사용하는 API
   - 전통적인 콜백 대신 프로미스를 사용
   - XHR이 아닌 fetch api를 사용
 
 --
 
 Promise
-* 서비스워커는 콜백 대신 Promise를 사용한다
-* Promise는 전통적인 콜백의 계단식 구조를 더 나은 방식으로 해결하도록 도와주는 API다
+
+- 서비스워커는 콜백 대신 Promise를 사용한다
+- Promise는 전통적인 콜백의 계단식 구조를 더 나은 방식으로 해결하도록 도와주는 API다
 
 예제로 알아보기
 
@@ -27,11 +29,13 @@ function addExtra(price) {
 
 console.log(addExtra(1));
 ```
-* addExtra는 인자로 넘어온 숫자에 1을 더해 반환하려는 함수다
-* 그러나 비동기 이므로 price는 이미 사라져 반환되는 값은 undefined가 된다
-* 이 문제를 해결하기 위해 과거에는 콜백 함수를 사용했다
+
+- addExtra는 인자로 넘어온 숫자에 1을 더해 반환하려는 함수다
+- 그러나 비동기 이므로 price는 이미 사라져 반환되는 값은 undefined가 된다
+- 이 문제를 해결하기 위해 과거에는 콜백 함수를 사용했다
 
 콜백함수를 사용한 해결
+
 ```js
 function addExtra(price, callback) {
   setTimeout(function () {
@@ -43,10 +47,12 @@ addExtra(1, function (newPrice) {
   console.log(newPrice);
 });
 ```
-* 이렇게 콜백함수를 사용해서 비동기 문제를 해결할 수 있다
-* 그러나 이런 해결방식의 문제점은 비동기 로직이 중첩된 보다 복잡한 상황을 해결할 때 계단식으로 코드가 한없이 늘어져야만 한다는 점이다
+
+- 이렇게 콜백함수를 사용해서 비동기 문제를 해결할 수 있다
+- 그러나 이런 해결방식의 문제점은 비동기 로직이 중첩된 보다 복잡한 상황을 해결할 때 계단식으로 코드가 한없이 늘어져야만 한다는 점이다
 
 계단식으로 코드가 늘어지는 콜백 헬
+
 ```js
 addExtra(1, function (newPrice) {
   addExtra(newPrice, function (newPrice2) {
@@ -56,15 +62,16 @@ addExtra(1, function (newPrice) {
   });
 });
 ```
-* 콜백 헬의 더 큰 문제는 수정사항이 생겼을 때 유연하게 대응하기 어렵다는 점이다
-* 예를 들어, addExtra함수의 중간에 validation로직이라도 추가한다면 코드는 더욱 끔찍해진다
+
+- 콜백 헬의 더 큰 문제는 수정사항이 생겼을 때 유연하게 대응하기 어렵다는 점이다
+- 예를 들어, addExtra함수의 중간에 validation로직이라도 추가한다면 코드는 더욱 끔찍해진다
 
 Validation로직 추가
+
 ```js
 function addExtra(price, callback) {
-
   if (price > 2) {
-    callback(false, "Price cannot exceed 3");
+    callback(false, 'Price cannot exceed 3');
     return;
   }
 
@@ -77,7 +84,7 @@ addExtra(1, function (newPrice) {
   if (error) {
     console.log(error);
     return;
-  }  
+  }
   addExtra(newPrice, function (newPrice2) {
     if (error) {
       console.log(error);
@@ -95,10 +102,11 @@ addExtra(1, function (newPrice) {
 ```
 
 Promise로 위 문제를 해결하기
-* 콜백은 비동기 이벤트가 완료되자마자 호출된다
-* 반면에 프로미스는 간단하게 비동기 이벤트를 분해한다
-* 프로미스는 일종의 헬퍼로서 비동기 코드가 끝나는 시점까지 기다리며 감독한다
-* Promise가 만들어지면 3가지 상태중 하나가 된다
+
+- 콜백은 비동기 이벤트가 완료되자마자 호출된다
+- 반면에 프로미스는 간단하게 비동기 이벤트를 분해한다
+- 프로미스는 일종의 헬퍼로서 비동기 코드가 끝나는 시점까지 기다리며 감독한다
+- Promise가 만들어지면 3가지 상태중 하나가 된다
   - Pending : 초기 상태
   - Resolved : 비동기 작업이 완료된 상태
   - Rejected : 프로미스 액션이 실패한 상태
@@ -121,20 +129,22 @@ addExtra(1)
   .catch((error) => {
     console.log(error);
   });
-
 ```
-* price가 2보다 크면 작업의 실패를 알리는 reject의 인자로 에러 메시지를 넘기고 있다
-* 모든 조건이 통과하면 resolve함수에 결과를 인자로 넘겨준다
-* 프로미스를 리턴하는 함수는 then과 catch함수를 통해 각각 성공, 실패시 작업을 처리할 수 있다
-* 위와 같이 프로미스를 사용하면 계단식으로 늘어지는 보기 싫은 코드를 없앨 수 있다
+
+- price가 2보다 크면 작업의 실패를 알리는 reject의 인자로 에러 메시지를 넘기고 있다
+- 모든 조건이 통과하면 resolve함수에 결과를 인자로 넘겨준다
+- 프로미스를 리턴하는 함수는 then과 catch함수를 통해 각각 성공, 실패시 작업을 처리할 수 있다
+- 위와 같이 프로미스를 사용하면 계단식으로 늘어지는 보기 싫은 코드를 없앨 수 있다
 
 ---
 
 Fetch API
-* Fetch는 XMLHttpRequest를 대체하는 새로운 브라우저 자바스크립트 API다
-* XHR에 사용되는 장황한 코드들을 없애고 직관적으로 사용할 수 있다
+
+- Fetch는 XMLHttpRequest를 대체하는 새로운 브라우저 자바스크립트 API다
+- XHR에 사용되는 장황한 코드들을 없애고 직관적으로 사용할 수 있다
 
 XHR을 이용한 전통적인 Ajax사용법
+
 ```js
 // JS Fetch
 
@@ -163,6 +173,7 @@ request.onreadystatechange = (state) => {
 ```
 
 Fetch를 사용한 같은 동작을 하는 코드
+
 ```js
 fetch('https://api.github.com/users/google/repos')
   .then((response) => {
@@ -176,25 +187,28 @@ fetch('https://api.github.com/users/google/repos')
     console.log(error);
   });
 ```
-* 코드가 훨씬 간결해졌다
+
+- 코드가 훨씬 간결해졌다
 
 ---
 
 Lifecycle
-* 서비스 워커가 적용되는 과정에 대해 알아보자
-* Step1
-  - 브라우저가 서비스 워커 스크립트를 읽어냄(Parsing)  
-* Step2
+
+- 서비스 워커가 적용되는 과정에 대해 알아보자
+- Step1
+  - 브라우저가 서비스 워커 스크립트를 읽어냄(Parsing)
+- Step2
   - 서비스 워커 스크립트를 기반으로 태스크를 설치하는 단계
   - ex. Cash
-* Step3
+- Step3
   - Wating 이벤트를 설치하기
-* Step4
+- Step4
   - Activated(활성화) 단계
   - 서비스 워커가 페이지를 완전히 제어하는 단계
 
 서비스워커 등록 전에 체크해야할 것
-* 브라우저가 서비스 워커를 지원하는지를 체크
+
+- 브라우저가 서비스 워커를 지원하는지를 체크
   - 서비스워커는 HTML API중 navigator의 일부다
   - 따라서 아래 코드의 두 방법 중 하나로 체크할 수 있다
 
@@ -213,6 +227,7 @@ if (navigator.serviceWorker) {
 ```
 
 서비스워커 코드 작성하기
+
 ```js
 self.addEventListener('install', (e) => {
   let installPromise = new Promise((resolve) => {
@@ -228,16 +243,18 @@ self.addEventListener('activate', (e) => {
   console.log('SW: Activate Event');
 });
 ```
-* self는 서비스 워커 자신을 가르키는 변수다
-* install 이벤트는 서비스 워커가 실행하는 첫 번째 이벤트이며 한 번만 실행된다
-* waitUntil 함수는 프로미스를 전달받아 설치 완료 시점과, 성공 또는 실패를 브라우저에 알린다
-* skipWaiting 함수를 사용하면 대기를 방지하고 설치되자마자 서비스 워커를 활성화 시킨다
-* 서비스워커가 설치되어 클라이언트를 제어하고 push, sync같은 이벤트를 처리할 준비가 되면 activate이벤트가 발생한다
+
+- self는 서비스 워커 자신을 가르키는 변수다
+- install 이벤트는 서비스 워커가 실행하는 첫 번째 이벤트이며 한 번만 실행된다
+- waitUntil 함수는 프로미스를 전달받아 설치 완료 시점과, 성공 또는 실패를 브라우저에 알린다
+- skipWaiting 함수를 사용하면 대기를 방지하고 설치되자마자 서비스 워커를 활성화 시킨다
+- 서비스워커가 설치되어 클라이언트를 제어하고 push, sync같은 이벤트를 처리할 준비가 되면 activate이벤트가 발생한다
 
 ---
 
 FetchEvent
-* 네트워크와 관련된 조작을 도와주는 객체
+
+- 네트워크와 관련된 조작을 도와주는 객체
 
 ```js
 self.addEventListener('fetch', (e) => {
@@ -246,13 +263,14 @@ self.addEventListener('fetch', (e) => {
   }
 });
 ```
-* event객체의 request프로퍼티는 요청과 관련된 정보를 가지고 있다(ex. url)
-* url프로퍼티에 endsWith함수를 사용하면 최종 요청경로를 파악할 수 있다
+
+- event객체의 request프로퍼티는 요청과 관련된 정보를 가지고 있다(ex. url)
+- url프로퍼티에 endsWith함수를 사용하면 최종 요청경로를 파악할 수 있다
 
 ```js
 self.addEventListener('fetch', (e) => {
   if (e.request.url.endsWith('style.css')) {
-    e.respondWith( fetch('/style2.css') );
+    e.respondWith(fetch('/style2.css'));
   }
 
   if (e.request.url.endsWith('/greet')) {
@@ -266,12 +284,14 @@ self.addEventListener('fetch', (e) => {
   }
 });
 ```
-* respondWith는 프로미스를 사용해 추가적인 비동기 작업을 처리해준다
+
+- respondWith는 프로미스를 사용해 추가적인 비동기 작업을 처리해준다
 
 이미지를 불러들여와 읽기
+
 ```js
 // camera_feed.html
-<img src="http://placehold.it/500x200" />
+<img src="http://placehold.it/500x200" />;
 
 // main.js
 if (navigator.serviceWorker) {
@@ -294,6 +314,165 @@ fetch('camera_feed.html')
     document.querySelector('#camera').innerHTML = html;
   });
 ```
-* 위 코드를 추가하고 다시 로딩해보면 이미지를 불러와 추가하는 것을 확인할 수 있다
+
+- 위 코드를 추가하고 다시 로딩해보면 이미지를 불러와 추가하는 것을 확인할 수 있다
 
 ---
+
+Scope
+
+- 스코프는 서비스워커가 통제할 수 있는 모든 범위에 걸쳐져 있다
+- 서비스워커에 있는 어떤 리소스나 상대경로들 모두 스코프에 포함된다
+
+서비스워커를 등록하는 기초적인 상황을 예시로 보면서 알아보기
+
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progressive Web Apps</title>
+  </head>
+
+  <body>
+    <h1>Page 1</h1>
+    <p>
+      Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
+      consectetur, adipisci velit
+    </p>
+    <script src="/main.js"></script>
+  </body>
+</html>
+
+<!-- /posts/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progressive Web Apps</title>
+  </head>
+
+  <body>
+    <h1>Posts Home</h1>
+    <p>
+      Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
+      consectetur, adipisci velit
+    </p>
+    <script src="/main.js"></script>
+  </body>
+</html>
+
+<!-- posts/post1.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progressive Web Apps</title>
+  </head>
+
+  <body>
+    <h1>Posts 1</h1>
+    <p>
+      Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
+      consectetur, adipisci velit
+    </p>
+    <script src="/main.js"></script>
+  </body>
+</html>
+```
+
+- index.html과 한 계층 아래에 있는 posts폴더의 index.html, post1.html은 모두 최상위 계층에 있는 main.js를 불러오고 있다
+- 웹서버를 실행시켜 개발자도구의 Application에서 확인해보면 세 html파일에서 모두 main.js의 경로를 실제 폴더구조에 맞지 않게 /main.js로만 지정했음에도 불구하고 잘 찾는 것을 확인할 수 있다
+
+자바스크립트 파일의 내용은 다음과 같다
+
+```js
+// main.js
+if (navigator.serviceWorker) {
+  navigator.serviceWorker
+    .register('/sw.js')
+    .then((registration) => {
+      console.log('SW Registered');
+    })
+    .catch(console.log);
+}
+
+// sw.js
+self.addEventListener('activate', (_) => {
+  console.log('SW Active');
+});
+```
+
+sw.js파일을 posts폴더로 이동시키기
+
+- main.js에서는 sw.js파일을 /posts/sw.js에서 찾도록 변경한다
+
+```js
+// main.js
+if (navigator.serviceWorker) {
+  navigator.serviceWorker
+    .register('/posts/sw.js')
+    .then((registration) => {
+      console.log('SW Registered');
+    })
+    .catch(console.log);
+}
+```
+
+- 이제 개발자도구의 application에 등록된 서비스워커를 unregister하고 다시 등록해보자
+
+변경된 스코프
+![changed_scope](../img/scope.png)
+
+- 이제 스코프는 /이 아닌 /posts/를 기본으로 찾는 것으로 변경되었음을 확인할 수 있다
+- 이렇게 변경하면 /경로에 있는 파일은 /posts/이하 경로에 있는 파일에 접근할 수 없게끔 변경된다
+- / 경로로 접속하면 /posts/sw.js에 접근할 수 없으므로 sw.js가 출력하는 SW Active는 보이지 않을 것이다
+- 여기서 주의해야할것은 /posts와 /posts/경로는 다르다는 점이다
+
+등록(register) 함수에 스코프 옵션을 지정하기
+
+```js
+// main.js
+if (navigator.serviceWorker) {
+  navigator.serviceWorker
+    .register('/sw.js', { scope: '/posts' })
+    .then((registration) => {
+      console.log('SW Registered');
+    })
+    .catch(console.log);
+}
+```
+
+- 하드코딩으로 /posts/sw.js가 아닌 파일 이름만 쓴채로 스코프 옵션을 넘겨줘서 스코프를 사용할 수도 있다
+
+/posts와 /posts/를 각각 저장해 실행시켜보기
+
+```js
+// main.js
+/* /posts */
+if (navigator.serviceWorker) {
+  navigator.serviceWorker
+    .register('/sw.js', { scope: '/posts' })
+    .then((registration) => {
+      console.log('SW Registered');
+    })
+    .catch(console.log);
+}
+
+/* /posts/ */
+if (navigator.serviceWorker) {
+  navigator.serviceWorker
+    .register('/sw.js', { scope: '/posts/' })
+    .then((registration) => {
+      console.log('SW Registered');
+    })
+    .catch(console.log);
+}
+```
+
+- 다시 개발자도구의 Application에서 실행시켜보면 서로 다른 서비스워커가 등록되어 있는 것을 확인할 수 있을 것이다
+- 이처럼 경로 끝에 /을 붙이거나 붙이지 않는 것으로 규모가 큰 어플리케이션에서는 스코프를 이용한 보안 기능을 만들기도 한다
